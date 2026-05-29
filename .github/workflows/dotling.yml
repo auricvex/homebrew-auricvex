@@ -1,0 +1,78 @@
+name: Update dotling
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to update to (e.g. 0.6.3). Leave empty for latest."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  SOURCE_REPO: auricvex/dotling
+  FORMULA: Formula/dotling.rb
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=$(gh release view -R "$SOURCE_REPO" --json tagName -q '.tagName' | sed 's/^v//')
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch checksums
+        id: checksums
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BASE_URL="https://github.com/${SOURCE_REPO}/releases/download/v${VERSION}"
+
+          for target in aarch64-macos x86_64-macos aarch64-linux x86_64-linux; do
+            SHA=$(curl -sL "${BASE_URL}/dotling-${target}.tar.gz.sha256" | awk '{print $1}')
+            echo "${target}=${SHA}" >> "$GITHUB_OUTPUT"
+            echo "${target}: ${SHA}"
+          done
+
+      - name: Update formula
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          FILE="${{ env.FORMULA }}"
+
+          # Replace version in URLs
+          sed -i "s|download/v[0-9.]*/dotling-|download/v${VERSION}/dotling-|g" "$FILE"
+
+          # Replace checksums
+          sed -i "s|\(dotling-aarch64-macos.tar.gz\"\)$|dotling-aarch64-macos.tar.gz\"|" "$FILE"
+          sed -i "/dotling-aarch64-macos.tar.gz/{n;s/sha256 \".*\"/sha256 \"${{ steps.checksums.outputs.aarch64-macos }}\"/}" "$FILE"
+
+          sed -i "/dotling-x86_64-macos.tar.gz/{n;s/sha256 \".*\"/sha256 \"${{ steps.checksums.outputs.x86_64-macos }}\"/}" "$FILE"
+
+          sed -i "/dotling-aarch64-linux.tar.gz/{n;s/sha256 \".*\"/sha256 \"${{ steps.checksums.outputs.aarch64-linux }}\"/}" "$FILE"
+
+          sed -i "/dotling-x86_64-linux.tar.gz/{n;s/sha256 \".*\"/sha256 \"${{ steps.checksums.outputs.x86_64-linux }}\"/}" "$FILE"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "dotling ${{ steps.version.outputs.version }}"
+          title: "dotling ${{ steps.version.outputs.version }}"
+          body: |
+            Updates `dotling` formula to v${{ steps.version.outputs.version }}.
+
+            See the [release notes](https://github.com/${{ env.SOURCE_REPO }}/releases/tag/v${{ steps.version.outputs.version }}).
+          branch: "dotling-${{ steps.version.outputs.version }}"
+          delete-branch: true
