@@ -5,23 +5,23 @@ class Dotling < Formula
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/auricvex/dotling/releases/download/v0.6.2/dotling-aarch64-macos.tar.gz"
-      sha256 "77c10ea970fbc8f4af2232e71fc6da37bb1c6393ebefe21b2ae240f9db55aded"
+      url "https://github.com/auricvex/dotling/releases/download/v0.7.0/dotling-aarch64-macos.tar.gz"
+      sha256 "bec732dd68b6a0ebd3e0a303b1ddf8a7984824788a54ece0e3a85e85825d0c64"
     end
     if Hardware::CPU.intel?
-      url "https://github.com/auricvex/dotling/releases/download/v0.6.2/dotling-x86_64-macos.tar.gz"
-      sha256 "93052795467ccdc4b927c80dd5247d732c188668cb4ffd428632e41b38f972c5"
+      url "https://github.com/auricvex/dotling/releases/download/v0.7.0/dotling-x86_64-macos.tar.gz"
+      sha256 "c1c7592d0fed4508e00e97c84ffb18cf7103c7b7a8df33967fbbc6b754961b50"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/auricvex/dotling/releases/download/v0.6.2/dotling-aarch64-linux.tar.gz"
-      sha256 "968cd3ca487495ee4ce41785ac1b2b1e77b53e6fc230a72a8f80fe54f1260c44"
+      url "https://github.com/auricvex/dotling/releases/download/v0.7.0/dotling-aarch64-linux.tar.gz"
+      sha256 "92384a96b0f4e4a9e6e76a709f474f48a4b25e0b76b760bc3e5abcb7737280d7"
     end
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/auricvex/dotling/releases/download/v0.6.2/dotling-x86_64-linux.tar.gz"
-      sha256 "4a85c4ef3951b530b91e997e956170afd2129dd1b5d02dd1fd483b075cb0bd2f"
+      url "https://github.com/auricvex/dotling/releases/download/v0.7.0/dotling-x86_64-linux.tar.gz"
+      sha256 "d157913afec404ab6b255de3b0af1a864d44f1b6932d2092ce9fec9db844d073"
     end
   end
 
