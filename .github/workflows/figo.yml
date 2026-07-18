@@ -1,0 +1,71 @@
+name: Update figo
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to update to (e.g. 0.2.0). Leave empty for latest."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  SOURCE_REPO: auricvex/figo
+  FORMULA: Formula/figo.rb
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=$(gh release view -R "$SOURCE_REPO" --json tagName -q '.tagName' | sed 's/^v//')
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch checksums
+        id: checksums
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BASE_URL="https://github.com/${SOURCE_REPO}/releases/download/v${VERSION}"
+
+          for target in aarch64-apple-darwin x86_64-apple-darwin x86_64-unknown-linux-gnu; do
+            SHA=$(curl -sL "${BASE_URL}/figo-${target}.tar.gz" | sha256sum | awk '{print $1}')
+            echo "${target}=${SHA}" >> "$GITHUB_OUTPUT"
+            echo "${target}: ${SHA}"
+          done
+
+      - name: Update formula
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          FILE="${{ env.FORMULA }}"
+
+          sed -i "s|download/v[0-9.]*/figo-|download/v${VERSION}/figo-|g" "$FILE"
+
+          sed -i "/figo-aarch64-apple-darwin.tar.gz/{n;s/sha256 \".*\"/sha256 \"${{ steps.checksums.outputs.aarch64-apple-darwin }}\"/}" "$FILE"
+          sed -i "/figo-x86_64-apple-darwin.tar.gz/{n;s/sha256 \".*\"/sha256 \"${{ steps.checksums.outputs.x86_64-apple-darwin }}\"/}" "$FILE"
+          sed -i "/figo-x86_64-unknown-linux-gnu.tar.gz/{n;s/sha256 \".*\"/sha256 \"${{ steps.checksums.outputs.x86_64-unknown-linux-gnu }}\"/}" "$FILE"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "figo ${{ steps.version.outputs.version }}"
+          title: "figo ${{ steps.version.outputs.version }}"
+          body: |
+            Updates `figo` formula to v${{ steps.version.outputs.version }}.
+
+            See the [release notes](https://github.com/${{ env.SOURCE_REPO }}/releases/tag/v${{ steps.version.outputs.version }}).
+          branch: "figo-${{ steps.version.outputs.version }}"
+          delete-branch: true

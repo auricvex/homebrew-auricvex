@@ -7,12 +7,14 @@ A [Homebrew](https://brew.sh/) tap for [Auricvex](https://github.com/auricvex) a
 ```sh
 brew tap auricvex/auricvex
 brew install dotling
+brew install figo
 ```
 
 Or install directly:
 
 ```sh
 brew install auricvex/auricvex/dotling
+brew install auricvex/auricvex/figo
 ```
 
 ## Available Formulas
@@ -20,6 +22,7 @@ brew install auricvex/auricvex/dotling
 | Formula | Description |
 |---------|-------------|
 | [dotling](https://github.com/auricvex/dotling) | Zero-dependency dotfiles management CLI |
+| [figo](https://github.com/auricvex/figo) | ASCII and Unicode art CLI for diagrams, tables, and banners |
 
 ## License
 
