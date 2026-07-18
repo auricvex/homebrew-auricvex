@@ -5,19 +5,19 @@ class Figo < Formula
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/auricvex/figo/releases/download/v0.1.0/figo-aarch64-apple-darwin.tar.gz"
-      sha256 "ce81d121827a645fb663f2088cc0068a797c679b29015f168471f7c3c18cf711"
+      url "https://github.com/auricvex/figo/releases/download/v0.2.0/figo-aarch64-apple-darwin.tar.gz"
+      sha256 "dd0f22928ccccce478fe48e4f37db2c9e8f53e243c5370d737582099efca043d"
     end
     if Hardware::CPU.intel?
-      url "https://github.com/auricvex/figo/releases/download/v0.1.0/figo-x86_64-apple-darwin.tar.gz"
-      sha256 "91bd9150fb6415e9b6b081919adec2d85a8297a7c7d59af5c1a6b9903e3e4cc5"
+      url "https://github.com/auricvex/figo/releases/download/v0.2.0/figo-x86_64-apple-darwin.tar.gz"
+      sha256 "704a0bad2d9d533df4aa66679ec393c6347456133f4be8cfb99cddb5120d7e0f"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/auricvex/figo/releases/download/v0.1.0/figo-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "fd49998a72d76b3c06a6f7518a015117e27286f0f5167b71c16c8198afcc6e9b"
+      url "https://github.com/auricvex/figo/releases/download/v0.2.0/figo-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "cfbd9668df6e9aac73cf71308e37165bf227542a992c96fb2fe7cb2ae3a0f912"
     end
   end
 
